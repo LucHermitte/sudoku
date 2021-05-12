@@ -1,0 +1,19 @@
+diff --git i/CMakeLists.txt w/CMakeLists.txt
+index 42ee13f..f7ad64e 100644
+--- i/CMakeLists.txt
++++ w/CMakeLists.txt
+@@ -90,9 +90,11 @@ endif()
+ 
+ ################################################################################
+ 
+-find_package(MDSpan REQUIRED)
+-if(MDSpan_FOUND)
+-  message(STATUS "Found MDSpan in ${MDSpan_DIR}")
++if (NOT TARGET std::mdspan)
++    find_package(MDSpan REQUIRED)
++    if(MDSpan_FOUND)
++        message(STATUS "Found MDSpan in ${MDSpan_DIR}")
++    endif()
+ endif()
+ 
+ ################################################################################

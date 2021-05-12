@@ -1,0 +1,26 @@
+commit d387c2f
+Author: Luc Hermitte <luc.hermitte@csgroup.eu>
+Date:   Tue May 11 13:06:21 2021 +0200
+
+    Fix __container_policy_common::offset return value
+    
+    The function was meant to return a pointer and not an object
+
+diff --git a/include/experimental/__p1684_bits/container_policy_basic.hpp b/include/experimental/__p1684_bits/container_policy_basic.hpp
+index 34fae86..e35d336 100644
+--- a/include/experimental/__p1684_bits/container_policy_basic.hpp
++++ b/include/experimental/__p1684_bits/container_policy_basic.hpp
+@@ -99,11 +99,11 @@ public:
+ 
+   MDSPAN_INLINE_FUNCTION
+   static constexpr pointer offset(pointer p, ptrdiff_t i) noexcept {
+-    return p[size_t(i)];
++    return &p[size_t(i)];
+   }
+   MDSPAN_INLINE_FUNCTION
+   static constexpr const_pointer offset(const_pointer p, ptrdiff_t i) noexcept {
+-    return p[size_t(i)];
++    return &p[size_t(i)];
+   }
+ 
+   // TODO converting constructors (and make sure they work for conversion to const offset policy

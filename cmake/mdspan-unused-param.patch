@@ -1,0 +1,31 @@
+diff --git i/include/experimental/__p0009_bits/standard_layout_static_array.hpp w/include/experimental/__p0009_bits/standard_layout_static_array.hpp
+index 2404c4f..a7b16fa 100644
+--- i/include/experimental/__p0009_bits/standard_layout_static_array.hpp
++++ w/include/experimental/__p0009_bits/standard_layout_static_array.hpp
+@@ -207,7 +207,7 @@ struct __standard_layout_psa<
+   }
+   template <size_t _I, enable_if_t<_I == _Idx, int> = 1>
+   MDSPAN_FORCE_INLINE_FUNCTION _MDSPAN_CONSTEXPR_14 void
+-  __set_n(_T const &__rhs) noexcept {
++  __set_n(_T const &/*__rhs*/) noexcept {
+     // Don't assert here because that would break constexpr. This better
+     // not change anything, though
+   }
+@@ -301,7 +301,7 @@ struct __standard_layout_psa<
+ 
+   template <size_t _IDynamic, size_t _NDynamic>
+   MDSPAN_INLINE_FUNCTION constexpr explicit __standard_layout_psa(
+-      __construct_psa_from_dynamic_values_tag_t<_IDynamic> __tag,
++      __construct_psa_from_dynamic_values_tag_t<_IDynamic> /*__tag*/,
+       array<_T, _NDynamic> const &__vals) noexcept
+       : __value_pair(
+             ::std::get<_IDynamic>(__vals),
+@@ -407,7 +407,7 @@ struct __standard_layout_psa<_Tag, _T, integer_sequence<_T>, __sentinal,
+ 
+   template <size_t _IDynamic, size_t _NDynamic>
+   MDSPAN_INLINE_FUNCTION constexpr explicit __standard_layout_psa(
+-      __construct_psa_from_dynamic_values_tag_t<_IDynamic> __tag,
++      __construct_psa_from_dynamic_values_tag_t<_IDynamic> /*__tag*/,
+       array<_T, _NDynamic> const &) noexcept {}
+ 
+   template <class _UTag, class _U, class _UValsSeq, _U __u_sentinal,
