@@ -98,8 +98,10 @@ std::istream & grid::read(std::istream & is)
                         << " at (" << i << "," << j << "):"
                         << validity_inspector{*this} << "\n";
                     invalid_grid = true;
+                }
+                ++j;
             }
-            if (li[p] != '|') {
+            else if (li[p] == '.') {
                 j++;
             }
         }
