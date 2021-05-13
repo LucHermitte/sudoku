@@ -80,6 +80,7 @@ std::ostream & operator<<(std::ostream & os, grid const& v)
 
 std::istream & grid::read(std::istream & is)
 {
+    bool invalid_grid = false;
     grid_t gr = m_grid;
     std::string li;
     for (std::size_t i = 0 ; i < 9 && std::getline(is, li); ) {
@@ -91,6 +92,12 @@ std::istream & grid::read(std::istream & is)
             if ('1' <= li[p] && li[p] <= '9') {
                 auto v = li[p] - '0';
                 set(i, j, v);
+                if (! is_valid() && !invalid_grid)
+                {
+                    std::cerr << "Grid becomes invalid when setting " << v
+                        << " at (" << i << "," << j << "):"
+                        << validity_inspector{*this} << "\n";
+                    invalid_grid = true;
             }
             if (li[p] != '|') {
                 j++;
@@ -162,4 +169,45 @@ bool grid::is_solved() const noexcept
         }
     }
     return true;
+}
+
+std::ostream& operator<<(std::ostream & os, validity_state const& v)
+{
+    auto const are_all_represented = v.are_all_represented();
+    auto const are_there_no_duplicated = v.are_there_no_duplicated();
+    if (! are_all_represented)
+    {
+        os << "missing candidates: ";
+        for (int c=0; c<9 ; ++c)
+            if (v.nb_occurences[c] == 0)
+                os << (c+1) << ", ";
+    }
+    if (! are_there_no_duplicated)
+    {
+        os << "over selected values: ";
+        for (int c=0; c<9 ; ++c)
+            if (v.nb_unique_occurences[c] > 1)
+                os << (c+1) << ", ";
+    }
+    if (are_all_represented && are_there_no_duplicated)
+    {
+        os << "Everything in fine!";
+    }
+    return os;
+}
+
+template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
+
+std::ostream& operator<<(std::ostream & os, validity_inspector const& vi)
+{
+    auto & gr = const_cast<grid&>(vi.gr);
+    auto const val = gr.validity();
+    std::visit(overload{
+            [&](grid::is_ok) { os << "grid is ok"; },
+            [&](grid::has_bad_line   i) { os << "line #"   << (1+to_underlying(i)) << " is invalid: " << validity(gr.line(to_underlying(i))); },
+            [&](grid::has_bad_column i) { os << "column #" << (1+to_underlying(i)) << " is invalid: " << validity(gr.column(to_underlying(i))); },
+            [&](grid::has_bad_box    i) { os << "box #"    << (1+to_underlying(i)) << " is invalid: " << validity(gr.box(to_underlying(i))); },
+            }, val);
+    return os;
 }

@@ -30,7 +30,6 @@ std::ostream& operator<<(std::ostream & os, std::array<bool, 9> const& v)
 }
 }
 
-
 void test_changing_group_manually(any_group auto & group)
 {
     CHECK(is_valid(group));
@@ -177,6 +176,7 @@ SCENARIO("Read a grid from stream")
             THEN("the reading succeeds")
             {
                 REQUIRE(r);
+                CAPTURE(validity_inspector{gr});
                 REQUIRE(gr.is_valid());
             }
             AND_THEN("None of the lines is solved")
@@ -229,6 +229,7 @@ SCENARIO("Test on a solved grid")
             THEN("the reading succeeds")
             {
                 REQUIRE(r);
+                CAPTURE(validity_inspector{gr});
                 REQUIRE(gr.is_valid());
             }
             AND_THEN("All of the lines are solved")

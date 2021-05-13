@@ -173,30 +173,56 @@ bool is_solved(any_group auto group)
     return ok;
 }
 
-bool is_valid(any_group auto group)
+struct validity_state {
+    std::array<unsigned int, 9> nb_occurences;
+    std::array<unsigned int, 9> nb_unique_occurences;
+
+    bool are_all_represented() const noexcept {
+        return std::all_of(std::begin(nb_occurences), std::end(nb_occurences), [](int n){return n>=1;});
+    }
+    bool are_there_no_duplicated() const noexcept {
+        return std::all_of(std::begin(nb_unique_occurences), std::end(nb_unique_occurences), [](int n){return n<=1;});;
+    }
+    bool is_valid() const noexcept {
+        return are_all_represented() && are_there_no_duplicated();
+    }
+
+    friend std::ostream& operator<<(std::ostream & os, validity_state const& v);
+};
+
+validity_state validity(any_group auto group)
 {
     static_assert(is_group_v<decltype(group)>);
     std::array<unsigned int, 9> nb{};
     std::array<unsigned int, 9> nb_for_uniq{};
-    // std::cout << "CELLS: {";
     for (int i = 0; i < 9; ++i) {
-        // for (int j = 0; j < group.extent(1); ++j) {
-        // auto const& cel = group(i, j);
-        // auto const& cel = group(i);
         auto const& cel = at(group, i);
         auto const has_single_value = cel.has_single_value();
-        // std::cout << ", " << cel.as_int();
         for (auto idx : cel) {
-            // std::cout << "("<<int(idx)<<")";
             ++nb[idx]; // not noexcept...
             if (has_single_value) {
                 ++nb_for_uniq[idx]; // not noexcept...
             }
         }
-        // }
     }
-    // std::cout << "}\nNB: " << nb << "\n";
-    // std::cout << "UNIQUES: " << nb_for_uniq << "\n";
+    return validity_state{nb, nb_for_uniq};
+}
+
+bool is_valid(any_group auto group)
+{
+    static_assert(is_group_v<decltype(group)>);
+    std::array<unsigned int, 9> nb{};
+    std::array<unsigned int, 9> nb_for_uniq{};
+    for (int i = 0; i < 9; ++i) {
+        auto const& cel = at(group, i);
+        auto const has_single_value = cel.has_single_value();
+        for (auto idx : cel) {
+            ++nb[idx]; // not noexcept...
+            if (has_single_value) {
+                ++nb_for_uniq[idx]; // not noexcept...
+            }
+        }
+    }
     bool const all_are_represented = std::all_of(std::begin(nb), std::end(nb), [](int n){return n>=1;});
     bool const there_is_no_duplicated = std::all_of(std::begin(nb_for_uniq), std::end(nb_for_uniq), [](int n){return n<=1;});
 
@@ -223,5 +249,14 @@ auto set(any_group auto group, grid::index_type idx, std::uint8_t value) {
     assert(is_valid(group));
     return changes;
 }
+
+struct validity_inspector {
+    explicit validity_inspector(grid const& g) : gr(g) {}
+
+    friend std::ostream& operator<<(std::ostream & os, validity_inspector const& vi);
+
+private:
+    grid const& gr;
+};
 
 #endif  // SUDOKU_GRID_HPP__
